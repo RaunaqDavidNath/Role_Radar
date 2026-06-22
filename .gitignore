@@ -17,3 +17,6 @@ venv/
 # macOS
 .DS_Store
 
+# Local-only AI assistant context (not part of the public project)
+CLAUDE.md
+
