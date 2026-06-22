@@ -19,7 +19,7 @@ from datetime import datetime
 import requests
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 # ============================ CONFIGURATION ===============================
 
@@ -223,16 +223,19 @@ def main():
     seen_ids = load_seen_job_ids()
     current_ids = set()
     new_jobs = []
+    fetch_failed = False
 
     for company in COMPANIES:
         fetcher = PLATFORM_FETCHERS.get(company["platform"])
         if not fetcher:
             print(f"[{timestamp}] Unknown platform '{company['platform']}' for {company['name']}, skipping.")
+            fetch_failed = True
             continue
         try:
             jobs = fetcher(company["board_id"])
         except Exception as e:
             print(f"[{timestamp}] Failed to fetch {company['name']}: {e}")
+            fetch_failed = True
             continue
 
         for job in jobs:
@@ -242,6 +245,11 @@ def main():
             current_ids.add(unique_id)
             if unique_id not in seen_ids:
                 new_jobs.append(job)
+
+    # If any company failed to fetch this run, keep the roles we already saw so
+    # a transient network blip doesn't wipe our memory and re-notify everything.
+    if fetch_failed:
+        current_ids |= seen_ids
 
     if not new_jobs:
         print(f"[{timestamp}] No new postings across {len(COMPANIES)} companies. {len(current_ids)} roles open in total.")
