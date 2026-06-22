@@ -1,0 +1,21 @@
+# Secrets
+.env
+
+# Generated at runtime -- don't commit these
+seen_jobs.json
+all_new_jobs.log
+output.log
+error.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# macOS
+.DS_Store
+
+# Local-only AI assistant context (not part of the public project)
+CLAUDE.md
